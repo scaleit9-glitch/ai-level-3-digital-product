@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --color-text-primary: #e8e8ef;
+  --color-text-secondary: #8888a0;
+  --color-text-tertiary: #55556a;
+  --color-background-primary: #0a0a0f;
+  --color-background-secondary: #12121a;
+  --color-border-secondary: rgba(255,255,255,0.12);
+  --color-border-tertiary: rgba(255,255,255,0.06);
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--color-background-primary);color:var(--color-text-primary)}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+.wrap{max-width:680px;margin:0 auto;padding:0 0 40px}
+
+.hero{background:#0f0f1a;border-radius:16px;padding:28px;margin-bottom:20px;border:0.5px solid #2d2d4e;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#7c6fcd;font-weight:500;margin-bottom:10px}
+.hero-title{font-size:24px;font-weight:600;color:#fff;line-height:1.2;margin-bottom:8px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.65;margin-bottom:20px}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500}
+.pill-done{background:rgba(72,187,120,0.12);border:0.5px solid rgba(72,187,120,0.3);color:#68d391}
+.pill-now{background:rgba(139,92,246,0.18);border:0.5px solid rgba(139,92,246,0.5);color:#a78bfa}
+
+.path-select-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-tertiary);font-weight:500;text-align:center;margin-bottom:14px}
+.path-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.path-card{border-radius:14px;padding:20px;cursor:pointer;transition:all .25s;border:1.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);position:relative;overflow:hidden}
+.path-card.path-a.selected{border-color:#7c3aed;background:rgba(124,58,237,0.06)}
+.path-card.path-b.selected{border-color:#d97706;background:rgba(217,119,6,0.06)}
+.path-card:hover{border-color:var(--color-border-secondary)}
+.path-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:10px;margin-bottom:12px}
+.path-a .path-badge{background:rgba(139,92,246,0.15);color:#a78bfa}
+.path-b .path-badge{background:rgba(251,191,36,0.15);color:#d97706}
+.path-title{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:6px}
+.path-sub{font-size:12px;color:var(--color-text-secondary);line-height:1.55;margin-bottom:12px}
+.path-pros{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.path-pro{font-size:11px;color:var(--color-text-secondary);display:flex;align-items:flex-start;gap:6px;line-height:1.45}
+.path-pro-dot{flex-shrink:0;margin-top:3px;width:5px;height:5px;border-radius:50%}
+.path-a .path-pro-dot{background:#a78bfa}
+.path-b .path-pro-dot{background:#fbbf24}
+.path-effort{font-size:10px;padding:3px 8px;border-radius:8px;font-weight:500;display:inline-flex;align-items:center;gap:4px}
+.path-a .path-effort{background:rgba(139,92,246,0.1);color:#7c3aed}
+.path-b .path-effort{background:rgba(251,191,36,0.1);color:#b45309}
+.path-select-btn{width:100%;margin-top:12px;padding:9px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid;font-family:'DM Sans',system-ui,sans-serif;transition:all .2s}
+.path-a .path-select-btn{border-color:#7c3aed;color:#a78bfa;background:rgba(124,58,237,0.08)}
+.path-b .path-select-btn{border-color:#d97706;color:#d97706;background:rgba(217,119,6,0.08)}
+.selected-indicator{display:none;position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;font-size:10px}
+.path-a .selected-indicator{background:#7c3aed;color:#fff}
+.path-b .selected-indicator{background:#d97706;color:#fff}
+.path-card.selected .selected-indicator{display:flex}
+
+.compare-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:16px;margin-bottom:20px}
+.compare{width:100%;border-collapse:collapse;font-size:12px}
+.compare th{padding:8px 10px;text-align:left;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-tertiary);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:0.08em}
+.compare td{padding:9px 10px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);vertical-align:top;line-height:1.5}
+.compare tr:last-child td{border-bottom:none}
+.compare td:first-child{color:var(--color-text-primary);font-weight:500;white-space:nowrap}
+.c-a{color:#a78bfa;font-weight:500}
+.c-b{color:#fbbf24;font-weight:500}
+
+.content-area{display:none}
+.content-area.visible{display:block}
+
+.path-indicator{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;border-radius:10px}
+.path-indicator-a{background:rgba(124,58,237,0.06);border:0.5px solid rgba(124,58,237,0.2)}
+.path-indicator-b{background:rgba(217,119,6,0.06);border:0.5px solid rgba(217,119,6,0.2)}
+.switch-btn{margin-left:auto;font-size:11px;color:var(--color-text-tertiary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:3px 8px;cursor:pointer;font-family:'DM Sans',system-ui,sans-serif}
+
+.phase-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-tertiary);transition:all .2s;font-family:'DM Sans',system-ui,sans-serif;white-space:nowrap}
+.tab.on-a{background:#1e1435;border-color:#7c3aed;color:#a78bfa}
+.tab.on-b{background:#1c1400;border-color:#d97706;color:#fbbf24}
+.tab:hover:not(.on-a):not(.on-b){border-color:var(--color-border-secondary);color:var(--color-text-secondary)}
+
+.phase{display:none}
+.phase.on{display:block}
+
+.phase-bar{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--color-background-secondary);border-radius:12px;margin-bottom:16px;border:0.5px solid var(--color-border-tertiary)}
+.phase-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.phase-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-tertiary);margin-bottom:3px;font-weight:500}
+.phase-name{font-size:16px;font-weight:600;color:var(--color-text-primary);margin-bottom:3px}
+.phase-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.55}
+
+.accordion{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.acc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.acc.open-a{border-color:#7c3aed}
+.acc.open-b{border-color:#d97706}
+.acc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.acc-num{width:24px;height:24px;border-radius:50%;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.acc-title{flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.acc-tag{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:500;flex-shrink:0}
+.acc-arr{font-size:11px;color:var(--color-text-tertiary);transition:transform .25s;flex-shrink:0}
+.acc.open-a .acc-arr,.acc.open-b .acc-arr{transform:rotate(180deg)}
+.acc-body{display:none;padding:12px 14px 14px 48px;border-top:0.5px solid var(--color-border-tertiary)}
+.acc.open-a .acc-body,.acc.open-b .acc-body{display:block}
+.acc-body p{font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:10px}
+.acc-body p:last-child{margin-bottom:0}
+.acc-body strong{color:var(--color-text-primary);font-weight:500}
+
+.new-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;padding:2px 6px;border-radius:6px;background:rgba(74,222,128,0.15);color:#16a34a;margin-left:6px;vertical-align:middle}
+
+.tool-row{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:10px}
+.tool{display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:8px 10px}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tname{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.trole{font-size:10px;color:var(--color-text-tertiary);margin-top:1px}
+
+.niches-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.niche-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:11px;text-align:center;cursor:pointer;transition:all .2s}
+.niche-card:hover,.niche-card.sel{border-color:#7c3aed;background:rgba(124,58,237,0.04)}
+.niche-card.hot-niche{border-color:rgba(251,191,36,0.4)}
+.niche-ico{font-size:20px;margin-bottom:5px}
+.niche-name{font-size:12px;font-weight:600;color:var(--color-text-primary);margin-bottom:2px}
+.niche-tag{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:500}
+.niche-detail{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7;display:none}
+
+.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.pcard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;position:relative}
+.pcard:hover,.pcard.sel-a{border-color:#7c3aed;background:rgba(124,58,237,0.04)}
+.pcard-top{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.pcard-ico{font-size:20px}
+.pcard-name{font-size:12px;font-weight:600;color:var(--color-text-primary)}
+.pcard-price{font-size:10px;color:var(--color-text-tertiary);margin-top:1px}
+.ptags{display:flex;gap:4px;flex-wrap:wrap}
+.ptag{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:500}
+.hot{position:absolute;top:8px;right:8px;font-size:9px;background:#991b1b;color:#fca5a5;padding:2px 6px;border-radius:6px;font-weight:600}
+.pdetail-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7;display:none}
+
+.aff-platforms{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.aff-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px;cursor:pointer;transition:all .2s}
+.aff-card:hover,.aff-card.sel{border-color:#d97706;background:rgba(217,119,6,0.04)}
+.aff-card-name{font-size:13px;font-weight:600;color:var(--color-text-primary);margin-bottom:3px}
+.aff-card-niche{font-size:10px;color:var(--color-text-tertiary);margin-bottom:7px}
+.aff-detail-box{background:var(--color-background-secondary);border:0.5px solid rgba(217,119,6,0.3);border-radius:10px;padding:14px;margin-bottom:14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7;display:none}
+
+.funnel-wrap{margin-bottom:16px}
+.funnel-title{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-tertiary);font-weight:500;margin-bottom:12px;text-align:center}
+.fstages{display:flex;flex-direction:column;align-items:center;gap:2px}
+.fs{width:100%;padding:10px 14px;border-radius:8px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:opacity .15s;max-width:520px}
+.fs:hover{opacity:0.85}
+.fs-ico{font-size:14px;flex-shrink:0}
+.fs-info{flex:1}
+.fs-name{font-size:12px;font-weight:500}
+.fs-sub{font-size:10px;opacity:0.65;margin-top:1px}
+.fs-right{font-size:11px;font-weight:600;opacity:0.9;flex-shrink:0;text-align:right}
+.farr{font-size:11px;color:var(--color-text-tertiary);text-align:center;line-height:1;margin:1px 0}
+.fdetail-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:12px;margin:8px auto;max-width:520px;font-size:12px;color:var(--color-text-secondary);line-height:1.65;display:none}
+
+.content-pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.cpillar{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px}
+.cpillar-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.cpillar-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.cpillar-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.cpillar-eg{font-size:10px;font-style:italic;color:var(--color-text-tertiary);margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary)}
+
+.wsteps{display:flex;flex-direction:column;gap:0;margin-bottom:14px}
+.wstep{display:flex;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.wstep:last-child{border-bottom:none}
+.wnum{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+.wtitle{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.wdesc{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.wtime{font-size:10px;color:var(--color-text-tertiary);margin-top:3px}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px;text-align:center}
+.metric-icon{font-size:18px;margin-bottom:6px}
+.metric-name{font-size:11px;font-weight:600;color:var(--color-text-primary);margin-bottom:3px}
+.metric-desc{font-size:10px;color:var(--color-text-tertiary);line-height:1.5}
+.metric-fix{font-size:10px;margin-top:6px;padding:3px 8px;border-radius:6px;font-weight:500;display:inline-block}
+
+.ladder{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.rung{display:flex;align-items:center;gap:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 12px}
+.rung-price{font-size:14px;font-weight:600;min-width:80px;flex-shrink:0}
+.rung-name{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.rung-desc{font-size:11px;color:var(--color-text-tertiary);margin-top:1px}
+.rung-goal{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500;flex-shrink:0}
+
+.checklist{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.ci{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.55}
+.ci-dot{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px}
+
+.tip{border-radius:10px;padding:12px 14px;display:flex;gap:10px;margin-top:12px;margin-bottom:4px}
+.tip-a{background:rgba(124,58,237,0.06);border:0.5px solid rgba(124,58,237,0.2)}
+.tip-b{background:rgba(217,119,6,0.06);border:0.5px solid rgba(217,119,6,0.2)}
+.tip-g{background:rgba(74,222,128,0.06);border:0.5px solid rgba(74,222,128,0.2)}
+.tip-ico{font-size:14px;flex-shrink:0;margin-top:1px}
+.tip-txt{font-size:12px;color:var(--color-text-secondary);line-height:1.65}
+
+.slbl{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-tertiary);font-weight:500;margin-bottom:10px}
+
+.three-x-three{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px}
+.tx-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px;text-align:center}
+.tx-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.tx-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.45}
+
+.workblock{display:flex;align-items:center;gap:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:14px;margin-bottom:14px}
+.workblock-time{font-size:28px;font-weight:600;color:#a78bfa;flex-shrink:0;min-width:60px;text-align:center}
+.workblock-label{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.workblock-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="hero-eyebrow">AI Wealth Group · Level 3 · Monetization</div>
+  <div class="hero-title">Digital Product Path</div>
+  <div class="hero-sub">This is where your AI Influencer skills become a business. You have the tools, you know how to create content and go viral. Now choose HOW you want to monetize — create your own digital product or promote someone else's for commission. Both paths use the exact same AI UGC, AI Ads, and AI Influencer skills you built in Levels 1 and 2.</div>
+  <div class="hero-pills">
+    <div class="pill pill-done">✓ Level 1 — AI Content Skills</div>
+    <div class="pill pill-done">✓ Level 2 — Distribution & Growth</div>
+    <div class="pill pill-now">▶ Level 3 — Monetization (you are here)</div>
+  </div>
+</div>
+
+<div class="path-select-label">First — choose your path</div>
+<div class="path-cards">
+  <div class="path-card path-a" onclick="selectPath('a')">
+    <div class="selected-indicator">✓</div>
+    <div class="path-badge">Path A</div>
+    <div class="path-title">Create your own digital product</div>
+    <div class="path-sub">Build a product with AI, set up your funnel, keep 100% of every sale.</div>
+    <div class="path-pros">
+      <div class="path-pro"><div class="path-pro-dot"></div>100% of every sale goes to you</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>Build your own brand and audience asset</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>Full control over pricing and offer</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>Long-term scalable business</div>
+    </div>
+    <div class="path-effort">⏱ 1–2 weeks to launch</div>
+    <button class="path-select-btn">Choose Path A →</button>
+  </div>
+  <div class="path-card path-b" onclick="selectPath('b')">
+    <div class="selected-indicator">✓</div>
+    <div class="path-badge">Path B</div>
+    <div class="path-title">Promote as an affiliate</div>
+    <div class="path-sub">No product creation. Promote existing products, earn 30–50% commission on every sale.</div>
+    <div class="path-pros">
+      <div class="path-pro"><div class="path-pro-dot"></div>Zero product creation required</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>No tech setup or funnel building</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>Start making money in days</div>
+      <div class="path-pro"><div class="path-pro-dot"></div>Perfect while building your own product</div>
+    </div>
+    <div class="path-effort">⏱ Start in 1–2 days</div>
+    <button class="path-select-btn">Choose Path B →</button>
+  </div>
+</div>
+
+<div class="compare-box">
+  <div class="slbl" style="margin-bottom:12px">Not sure? Compare both paths</div>
+  <table class="compare">
+    <tr><th>Factor</th><th class="c-a">Path A — Creator</th><th class="c-b">Path B — Affiliate</th></tr>
+    <tr><td>Time to first $</td><td>1–3 weeks</td><td>2–7 days</td></tr>
+    <tr><td>Revenue per sale</td><td>100% yours ($17–$297)</td><td>30–50% commission</td></tr>
+    <tr><td>What you build</td><td>A product + brand asset</td><td>Audience + email list</td></tr>
+    <tr><td>Effort upfront</td><td>Medium (product creation)</td><td>Low (just content)</td></tr>
+    <tr><td>Risk</td><td>Low (AI does the work)</td><td>Zero</td></tr>
+    <tr><td>Long-term potential</td><td>Highest</td><td>Medium</td></tr>
+    <tr><td>Best for</td><td>Building a real business</td><td>Fast income while learning</td></tr>
+  </table>
+  <div class="tip tip-b" style="margin-top:12px"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Pro move:</strong> Many students start with Path B to generate income fast while simultaneously building their Path A product. Once your own product is ready, you switch — but you already have an audience and cash flow.</div></div>
+</div>
+
+<!-- PATH A -->
+<div class="content-area" id="content-a">
+  <div class="path-indicator path-indicator-a">
+    <div style="font-size:13px;color:#a78bfa;font-weight:500">Path A — Create your own digital product</div>
+    <button class="switch-btn" onclick="selectPath(null)">Switch path</button>
+  </div>
+  <div class="phase-tabs" id="tabs-a">
+    <div class="tab on-a" onclick="showPhase('a','pa1',this)">1 · Niche & Product</div>
+    <div class="tab" onclick="showPhase('a','pa2',this)">2 · Create with AI</div>
+    <div class="tab" onclick="showPhase('a','pa3',this)">3 · Build Funnel</div>
+    <div class="tab" onclick="showPhase('a','pa4',this)">4 · Content & Traffic</div>
+    <div class="tab" onclick="showPhase('a','pa5',this)">5 · Optimize & Scale</div>
+  </div>
+
+  <!-- A P1 -->
+  <div class="phase on" id="pa1">
+    <div class="phase-bar"><div class="phase-ico" style="background:#1a0f2e">🎯</div><div class="phase-info"><div class="phase-eyebrow">Phase 1 · Before you build anything</div><div class="phase-name">Choose your niche and validate your product idea</div><div class="phase-desc">The right niche picked correctly from the start saves you months of wasted effort. Here is exactly how to do it.</div></div></div>
+
+    <div class="slbl">Step 1 — Pick from proven niche categories <span class="new-badge">updated</span></div>
+    <div class="niches-grid">
+      <div class="niche-card hot-niche" onclick="selNiche(this,'wealth')"><div class="niche-ico">💰</div><div class="niche-name">Wealth & Income</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card hot-niche" onclick="selNiche(this,'health')"><div class="niche-ico">💪</div><div class="niche-name">Health & Fitness</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card hot-niche" onclick="selNiche(this,'relationships')"><div class="niche-ico">❤️</div><div class="niche-name">Relationships</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card" onclick="selNiche(this,'ai')"><div class="niche-ico">🤖</div><div class="niche-name">AI & Productivity</div><div class="niche-tag" style="background:rgba(139,92,246,0.12);color:#7c3aed">Hot 2026</div></div>
+      <div class="niche-card" onclick="selNiche(this,'personal')"><div class="niche-ico">🧠</div><div class="niche-name">Personal Finance</div><div class="niche-tag" style="background:rgba(139,92,246,0.12);color:#7c3aed">Hot 2026</div></div>
+      <div class="niche-card" onclick="selNiche(this,'creative')"><div class="niche-ico">🎨</div><div class="niche-name">Creative Skills</div><div class="niche-tag" style="background:rgba(72,187,120,0.12);color:#276749">Evergreen</div></div>
+      <div class="niche-card" onclick="selNiche(this,'business')"><div class="niche-ico">📊</div><div class="niche-name">Business & Marketing</div><div class="niche-tag" style="background:rgba(72,187,120,0.12);color:#276749">Evergreen</div></div>
+      <div class="niche-card" onclick="selNiche(this,'selfdev')"><div class="niche-ico">🌱</div><div class="niche-name">Self-Development</div><div class="niche-tag" style="background:rgba(72,187,120,0.12);color:#276749">Evergreen</div></div>
+      <div class="niche-card" onclick="selNiche(this,'parenting')"><div class="niche-ico">👨‍👩‍👧</div><div class="niche-name">Parenting & Family</div><div class="niche-tag" style="background:rgba(72,187,120,0.12);color:#276749">Evergreen</div></div>
+    </div>
+    <div class="niche-detail" id="niche-detail-a"></div>
+
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'a')">
+        <div class="acc-head"><div class="acc-num" style="background:#1a0f2e;color:#a78bfa">1</div><div class="acc-title">Go specific within your niche</div><div class="acc-tag" style="background:rgba(239,68,68,0.1);color:#f87171">Critical</div><div class="acc-arr">▼</div></div>
+        <div class="acc-body"><p>Broad niches are impossible to win as a beginner. The money is in specificity. <strong>"Wealth"</strong> is too broad. <strong>"How to make money online with AI digital products as a stay-at-home parent"</strong> is a niche. The more specific you are, the less competition and the stronger your content converts.</p><p>Use ChatGPT: <em>"I want to sell a digital product in [niche]. Give me 10 highly specific sub-niches with a real audience problem I can solve. Include who the buyer is and what keeps them up at night."</em></p></div>
+      </div>
+      <div class="acc" onclick="toggleAcc(this,'a')">
+        <div class="acc-head"><div class="acc-num" style="background:#1a0f2e;color:#a78bfa">2</div><div class="acc-title">Validate demand before building anything</div><div class="acc-tag" style="background:rgba(239,68,68,0.1);color:#f87171">Don't skip</div><div class="acc-arr">▼</div></div>
+        <div class="acc-body"><p>Go to TikTok and Instagram. Search your niche. What questions appear in comments over and over? What pain points repeat? Those are your product ideas. People are literally telling you what to build.</p><p>Then check Gumroad, Etsy, Stan Store. Are similar products already selling? Good — that is proven demand. Your job is not to invent a new category. Your job is to make a better or more targeted version of what already works.</p></div>
+      </div>
+      <div class="acc" onclick="toggleAcc(this,'a')">
+        <div class="acc-head"><div class="acc-num" style="background:#1a0f2e;color:#a78bfa">3</div><div class="acc-title">Choose your product type</div><div class="acc-tag" style="background:rgba(124,58,237,0.12);color:#a78bfa">Pick one to start</div><div class="acc-arr">▼</div></div>
+        <div class="acc-body"><p>Click a product card below. <strong>Start with ONE product only. Validate first. Expand later.</strong> The biggest beginner mistake is building 3 products at once before proving any of them sell.</p></div>
+      </div>
+    </div>
+
+    <div class="products-grid">
+      <div class="pcard" onclick="selProduct(this,'ebook')"><div class="hot">🔥 Best start</div><div class="pcard-top"><div class="pcard-ico">📘</div><div><div class="pcard-name">E-book / PDF Guide</div><div class="pcard-price">$17–$97</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Easiest</span><span class="ptag" style="background:rgba(49,130,206,0.1);color:#2c5282">100% margin</span></div></div>
+      <div class="pcard" onclick="selProduct(this,'template')"><div class="hot">🔥 Fast seller</div><div class="pcard-top"><div class="pcard-ico">📋</div><div><div class="pcard-name">Templates & Swipe Files</div><div class="pcard-price">$7–$47</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">1 day to make</span><span class="ptag" style="background:rgba(237,137,54,0.1);color:#c05621">High volume</span></div></div>
+      <div class="pcard" onclick="selProduct(this,'course')"><div class="pcard-top"><div class="pcard-ico">🎓</div><div><div class="pcard-name">Mini Video Course</div><div class="pcard-price">$47–$297</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(49,130,206,0.1);color:#2c5282">Highest revenue</span><span class="ptag" style="background:rgba(160,174,192,0.15);color:var(--color-text-secondary)">More effort</span></div></div>
+      <div class="pcard" onclick="selProduct(this,'prompts')"><div class="pcard-top"><div class="pcard-ico">⚡</div><div><div class="pcard-name">AI Prompt Packs</div><div class="pcard-price">$9–$37</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Trending</span><span class="ptag" style="background:rgba(237,137,54,0.1);color:#c05621">Very fast</span></div></div>
+      <div class="pcard" onclick="selProduct(this,'notion')"><div class="pcard-top"><div class="pcard-ico">🗂️</div><div><div class="pcard-name">Notion Templates</div><div class="pcard-price">$9–$29</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Zero cost</span><span class="ptag" style="background:rgba(160,174,192,0.15);color:var(--color-text-secondary)">Etsy traffic</span></div></div>
+      <div class="pcard" onclick="selProduct(this,'membership')"><div class="pcard-top"><div class="pcard-ico">🔐</div><div><div class="pcard-name">Membership / Community</div><div class="pcard-price">$27–$97/mo</div></div></div><div class="ptags"><span class="ptag" style="background:rgba(49,130,206,0.1);color:#2c5282">Recurring $$$</span><span class="ptag" style="background:rgba(160,174,192,0.15);color:var(--color-text-secondary)">Build later</span></div></div>
+    </div>
+    <div class="pdetail-box" id="pdetail-a"></div>
+    <div class="tip tip-a"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Your unfair advantage:</strong> You already create AI content and understand your audience from Levels 1 and 2. You can validate and launch a product in 1–2 weeks while most beginners take months. Use that speed — launch fast, learn from real data, improve.</div></div>
+  </div>
+
+  <!-- A P2 -->
+  <div class="phase" id="pa2">
+    <div class="phase-bar"><div class="phase-ico" style="background:#0f1a0f">🤖</div><div class="phase-info"><div class="phase-eyebrow">Phase 2 · Build your asset</div><div class="phase-name">Create your digital product using AI tools</div><div class="phase-desc">You don't need to be a writer, designer or expert. AI does 80% of the work. Your job is to direct it, package it and price it right.</div></div></div>
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'a')"><div class="acc-head"><div class="acc-num" style="background:#0f1a0f;color:#68d391">1</div><div class="acc-title">Write all content with ChatGPT or Claude</div><div class="acc-tag" style="background:rgba(72,187,120,0.1);color:#276749">Core step</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>E-book:</strong> Prompt: <em>"Act as an expert in [niche]. Write a complete 20-page guide on [topic] for [audience]. Include intro, 5 chapters with actionable steps, real examples and a conclusion. Simple language, no filler."</em></p><p><strong>Prompt pack:</strong> Prompt: <em>"Create 50 high-quality ChatGPT prompts for [use case]. Format each as: [Goal] — [Prompt]."</em></p><p><strong>Course outline:</strong> Prompt: <em>"Create a mini course on [topic] for [audience]. 6 modules, each with 3 key lessons and one immediate action step."</em> Then script each lesson individually.</p><p>Always edit the output. Add your own examples, your voice, and insights from your actual content journey. AI gives you the draft — you make it human.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'a')"><div class="acc-head"><div class="acc-num" style="background:#0f1a0f;color:#68d391">2</div><div class="acc-title">Design with Canva AI</div><div class="acc-tag" style="background:rgba(72,187,120,0.1);color:#276749">Looks = trust = sales</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>Use Canva free e-book templates for layout. Generate a cover image with Canva AI or use free stock images — add your title. One strong color + one font family is enough. Don't over-design.</p><p>Create a 3D product mockup with Smart Mockups or Mockup World (both free). A physical-looking product image on your sales page dramatically increases perceived value and conversion rate.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'a')"><div class="acc-head"><div class="acc-num" style="background:#0f1a0f;color:#68d391">3</div><div class="acc-title">Record course videos using your Level 1 AI tools</div><div class="acc-tag" style="background:rgba(72,187,120,0.1);color:#276749">Your advantage</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>AI avatar (Higgsfield):</strong> Use the exact workflow from Level 1. Script your lessons, generate avatar videos. This is your unfair advantage — most product sellers cannot do this. A video course built with an AI avatar looks more premium and sells at higher prices than a PDF.</p><p><strong>Screen recording:</strong> Loom (free) for screen plus voice walkthroughs. Fast, personal and costs nothing.</p><p><strong>AI voiceover slides:</strong> Record Canva slides with ElevenLabs AI voice. Upload to Teachable or Notion. Aim for 5–10 lessons at 5–15 minutes each. Short and actionable wins every time.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'a')"><div class="acc-head"><div class="acc-num" style="background:#0f1a0f;color:#68d391">4</div><div class="acc-title">Package, price and add bonuses</div><div class="acc-tag" style="background:rgba(237,137,54,0.1);color:#c05621">Pricing matters</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>Stack value with bonuses:</strong> A $27 e-book plus a bonus checklist plus a prompt pack feels like a $97 product. Stack value, price with confidence.</p><p><strong>Proven price points:</strong> $17, $27, $37, $47, $97. Avoid round numbers — they feel arbitrary.</p><p><strong>Launch low, raise over time:</strong> Start at $17–$27 for your first 10 sales and reviews. Then raise to $37–$47. Testimonials justify higher prices and build buyer confidence for others.</p></div></div>
+    </div>
+    <div class="slbl">Full AI creation toolkit</div>
+    <div class="tool-row">
+      <div class="tool"><div class="tdot" style="background:#a78bfa"></div><div><div class="tname">ChatGPT / Claude</div><div class="trole">Write all content and copy</div></div></div>
+      <div class="tool"><div class="tdot" style="background:#f472b6"></div><div><div class="tname">Canva AI</div><div class="trole">Design covers, layouts, mockups and visuals</div></div></div>
+      <div class="tool"><div class="tdot" style="background:#34d399"></div><div><div class="tname">Higgsfield AI</div><div class="trole">AI avatar course videos</div></div></div>
+      <div class="tool"><div class="tdot" style="background:#60a5fa"></div><div><div class="tname">ElevenLabs</div><div class="trole">AI voiceovers</div></div></div>
+      <div class="tool"><div class="tdot" style="background:#f87171"></div><div><div class="tname">Notion</div><div class="trole">Planners and templates</div></div></div>
+    </div>
+    <div class="tip tip-g"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Fire then aim:</strong> Don't wait for perfection. Launch your product as soon as it's good enough to deliver real value. Use real sales data and real feedback to improve it. A product that exists beats a perfect product that never launches every single time.</div></div>
+  </div>
+
+  <!-- A P3 -->
+  <div class="phase" id="pa3">
+    <div class="phase-bar"><div class="phase-ico" style="background:#1a1000">⚙️</div><div class="phase-info"><div class="phase-eyebrow">Phase 3 · Set up your money system</div><div class="phase-name">Build the funnel that converts traffic into sales</div><div class="phase-desc">Your content drives traffic. This system converts that traffic into money — automatically, 24/7, while you sleep.</div></div></div>
+    <div class="funnel-wrap">
+      <div class="funnel-title">Complete sales funnel — click each stage for details</div>
+      <div class="fstages">
+        <div class="fs" style="background:#1a0f2e;max-width:520px" onclick="showFD('fa1')"><div class="fs-ico">📱</div><div class="fs-info"><div class="fs-name" style="color:#a78bfa">AI content (TikTok / Reels / Shorts)</div><div class="fs-sub" style="color:rgba(167,139,250,0.6)">7–11 second videos drive bio link clicks</div></div><div class="fs-right" style="color:#a78bfa">Top of funnel</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fa1"><strong>Every video has one goal:</strong> get viewers curious enough to click your bio link. Use the 7–11 second short video format — it is the highest-performing format right now because it delivers one sharp insight before the viewer can scroll. End every video with: <em>"Get my free [X] — link in bio."</em> Post 1–3x daily using your Level 1 and 2 workflow.</div>
+        <div class="fs" style="background:#0f1f0f;max-width:460px" onclick="showFD('fa2')"><div class="fs-ico">🔗</div><div class="fs-info"><div class="fs-name" style="color:#68d391">Bio link → storefront</div><div class="fs-sub" style="color:rgba(104,211,145,0.6)">Stan Store, Gumroad or Beacons</div></div><div class="fs-right" style="color:#68d391">~20% click</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fa2"><strong>Storefront options:</strong> Stan Store ($29/mo) — best for TikTok and Instagram creators, all-in-one. Gumroad (free, 10% fee) — best to start with zero cost. Beacons (free) — solid alternative. Show 1 freebie plus 1–2 paid products. Keep it simple — too many options cause decision paralysis and kill conversions.</div>
+        <div class="fs" style="background:#1a1000;max-width:400px" onclick="showFD('fa3')"><div class="fs-ico">🎁</div><div class="fs-info"><div class="fs-name" style="color:#fbbf24">Free lead magnet</div><div class="fs-sub" style="color:rgba(251,191,36,0.6)">Freebie captures their email address</div></div><div class="fs-right" style="color:#fbbf24">40–60% optin</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fa3"><strong>Most important conversion in the entire funnel.</strong> Offer something genuinely valuable for free in exchange for an email address. Examples: free AI prompt pack, 5-step checklist, mini guide. Build with ChatGPT plus Canva in under an hour. Use ConvertKit or MailerLite (both free) to capture and store emails. This list is yours forever — no algorithm can take it from you.</div>
+        <div class="fs" style="background:#1a0a0a;max-width:340px" onclick="showFD('fa4')"><div class="fs-ico">💥</div><div class="fs-info"><div class="fs-name" style="color:#f87171">Tripwire offer</div><div class="fs-sub" style="color:rgba(248,113,113,0.6)">Immediate low-ticket offer after optin</div></div><div class="fs-right" style="color:#f87171">$7–$27 · 5–15%</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fa4"><strong>Right after optin, show a one-time offer.</strong> Something small and irresistible: "Wait — get my full template pack for just $7 today only." This is an impulse buy. Goal: convert a subscriber into a buyer. A buyer is 10x more likely to purchase again. Gumroad and Stan Store both support automatic redirect after optin.</div>
+        <div class="fs" style="background:#0a0f1a;max-width:280px" onclick="showFD('fa5')"><div class="fs-ico">📧</div><div class="fs-info"><div class="fs-name" style="color:#60a5fa">Email nurture sequence</div><div class="fs-sub" style="color:rgba(96,165,250,0.6)">5–7 emails, automated, runs forever</div></div><div class="fs-right" style="color:#60a5fa">~30% open</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fa5"><strong>Write once with ChatGPT, runs on autopilot forever.</strong> Email 1 (instant): Deliver freebie plus welcome. Email 2 (day 1): Your story — how you started. Email 3 (day 2): Pure value — teach something useful. Email 4 (day 3): Soft intro to your paid product. Email 5 (day 5): Social proof plus what is inside. Email 6 (day 7): Final CTA plus urgency or bonus. Load into ConvertKit automations. Every new subscriber goes through this automatically.</div>
+        <div class="fs" style="background:#0a1a0a;max-width:220px" onclick="showFD('fa6')"><div class="fs-ico">💰</div><div class="fs-info"><div class="fs-name" style="color:#4ade80">Main paid product</div><div class="fs-sub" style="color:rgba(74,222,128,0.6)">Your core digital product</div></div><div class="fs-right" style="color:#4ade80">$37–$297</div></div>
+        <div class="fdetail-box" id="fa6" style="margin-top:8px"><strong>This is where real revenue happens.</strong> Dedicated sales page: headline, problem, solution, bullet benefits, what's inside, testimonials, guarantee, price, buy button. Write the entire page with ChatGPT in one session. Host on Gumroad, Stan Store or Systeme.io. A 30-day money-back guarantee increases conversions significantly — buyers feel safer and you get fewer chargebacks.</div>
+      </div>
+    </div>
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'a')"><div class="acc-head"><div class="acc-num" style="background:#1a1000;color:#fbbf24">★</div><div class="acc-title">Recommended tech stack — beginner to intermediate</div><div class="acc-tag" style="background:rgba(251,191,36,0.1);color:#d97706">Setup guide</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>Start free:</strong> Gumroad (free, 10% fee) plus ConvertKit free plan plus Canva free. Total cost: $0. Get to your first $1,000 before spending anything.</p><p><strong>Upgrade when ready:</strong> Stan Store ($29/mo) — purpose-built for TikTok and Instagram creators. Handles storefront, product delivery, email and analytics in one place. Move here once you are making consistent sales.</p><p><strong>Sales page:</strong> Gumroad and Stan Store have built-in pages. Use those first. Later upgrade to Systeme.io (free funnel builder with more customization).</p><p><strong>Payments:</strong> Stripe and PayPal built into all platforms. Connect your account, get paid directly to your bank. Platforms handle EU VAT automatically.</p></div></div>
+    </div>
+    <div class="tip tip-a"><div class="tip-ico">💡</div><div class="tip-txt"><strong>The funnel is the business.</strong> Once set up, every piece of content you post feeds the top of this funnel. Your email sequence does the selling. Your product delivers the value. You just keep creating content and the system converts it to income in the background.</div></div>
+  </div>
+
+  <!-- A P4 -->
+  <div class="phase" id="pa4">
+    <div class="phase-bar"><div class="phase-ico" style="background:#0d1f33">📱</div><div class="phase-info"><div class="phase-eyebrow">Phase 4 · Where your Level 1 and 2 skills pay off</div><div class="phase-name">Content strategy and traffic generation</div><div class="phase-desc">You already know how to create AI content and go viral. Now you point that exact skill at your product. This is what separates you from every other digital product seller who has no content skills.</div></div></div>
+
+    <div class="slbl">The 7–11 second content rule <span class="new-badge">new</span></div>
+    <div class="acc" onclick="toggleAcc(this,'a')" style="margin-bottom:14px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden">
+      <div class="acc-head"><div class="acc-num" style="background:#0d1f33;color:#63b3ed">★</div><div class="acc-title">Why short videos win right now — and how to use this</div><div class="acc-tag" style="background:rgba(99,179,237,0.12);color:#2b6cb0">2026 tactic</div><div class="acc-arr">▼</div></div>
+      <div class="acc-body"><p>The algorithm in 2026 heavily rewards videos that get watched all the way through. A 7–11 second video that solves one specific micro-problem gets near-complete watch time, which signals the algorithm to push it to more people. This is your most powerful organic growth lever right now.</p><p><strong>The formula:</strong> Hook (1–2 sec) → One sharp insight or value point (4–6 sec) → CTA (2 sec). That is the entire video. No padding. No intro. No fluff. Get in, deliver value, get out.</p><p><strong>How to apply it:</strong> Take your longer content ideas and strip them down to their single sharpest point. "5 AI tools for passive income" becomes five separate 7-second videos — one tool each. More videos, more shots at going viral, more funnel entries.</p><p><strong>New account advantage:</strong> If you are starting fresh, that is actually an advantage. Platforms in 2026 actively push new accounts to encourage new creator sign-ups. You do not need 10,000 followers to go viral. You need good hooks and consistent posting. Start now — do not wait to build an audience first.</p></div>
+    </div>
+
+    <div class="slbl">Model and Modify (M&M) — the content research system <span class="new-badge">new</span></div>
+    <div class="acc" onclick="toggleAcc(this,'a')" style="margin-bottom:14px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden">
+      <div class="acc-head"><div class="acc-num" style="background:#0d1f33;color:#63b3ed">★</div><div class="acc-title">How to find viral content and reverse-engineer it with AI</div><div class="acc-tag" style="background:rgba(99,179,237,0.12);color:#2b6cb0">Proven system</div><div class="acc-arr">▼</div></div>
+      <div class="acc-body"><p>Do not try to invent viral content from scratch. Instead, find what is already working and make your version of it. This is called Model and Modify — and it is how professional content creators operate at scale.</p><p><strong>Step 1 — Research:</strong> Search your niche on TikTok and Instagram Reels. Filter by most viewed in the last 30 days. Identify the top 5 highest-performing videos. Analyze: What is the hook? What is the visual style? What problem does it solve? How long is it? What CTA does it use?</p><p><strong>Step 2 — Modify with AI:</strong> Take the hook and concept. Prompt ChatGPT: <em>"Here is a viral video hook: [paste hook]. Rewrite this in my voice for an audience interested in [your niche]. Keep the same emotional trigger but make it original and different."</em></p><p><strong>Step 3 — Produce your version:</strong> Use your Level 1 AI tools (Higgsfield, CapCut, ElevenLabs) to produce the video. Same energy, your angle, your CTA, your affiliate or product link.</p><p>You are not copying. You are studying what works and applying that knowledge to your own original content. Every top creator does this.</p></div>
+    </div>
+
+    <div class="slbl">The 3-hour deep work block <span class="new-badge">new</span></div>
+    <div class="workblock">
+      <div class="workblock-time">3hrs</div>
+      <div><div class="workblock-label">Your non-negotiable daily work block</div><div class="workblock-desc">Set aside 3 focused, distraction-free hours every day — ideally early morning or late evening when interruptions are lowest. No phone. No social media unless you are posting. This is when you create content, build your funnel, write emails and grow the business. Three quality hours beats eight scattered ones. Protect this block like it is your most valuable asset — because it is.</div></div>
+    </div>
+
+    <div class="slbl">4 content pillars — rotate these every week</div>
+    <div class="content-pillars">
+      <div class="cpillar"><div class="cpillar-label" style="color:#a78bfa">Pillar 1 — Educate</div><div class="cpillar-title">Teach your niche for free</div><div class="cpillar-desc">Give away valuable tips. Build trust and authority. No selling yet — just value.</div><div class="cpillar-eg">"5 AI tools that made me $X this month"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#68d391">Pillar 2 — Proof</div><div class="cpillar-title">Show results and social proof</div><div class="cpillar-desc">Income screenshots, transformations, testimonials, real results. Nothing sells like proof.</div><div class="cpillar-eg">"I made my first $500 with this one PDF"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#fbbf24">Pillar 3 — Behind the scenes</div><div class="cpillar-title">Show how you build with AI</div><div class="cpillar-desc">Your workflow, product creation, daily tools. Relatable and highly shareable content.</div><div class="cpillar-eg">"Watch me create an e-book in 2 hours with AI"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#f87171">Pillar 4 — Convert</div><div class="cpillar-title">Direct sell posts</div><div class="cpillar-desc">Point directly to your product. Only works after pillars 1–3 build enough trust.</div><div class="cpillar-eg">"Link in bio to get the full template pack"</div></div>
+    </div>
+
+    <div class="slbl">Daily AI content workflow</div>
+    <div class="wsteps">
+      <div class="wstep"><div class="wnum" style="background:#1a0f2e;color:#a78bfa">1</div><div><div class="wtitle">Generate ideas with ChatGPT</div><div class="wdesc">Prompt: <em>"Give me 10 viral TikTok ideas for [niche] that would make someone want to buy a digital product about [topic]. Focus on hooks that trigger curiosity or FOMO. Make each one 7–11 seconds when spoken aloud."</em></div><div class="wtime">⏱ 10 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1a0f2e;color:#a78bfa">2</div><div><div class="wtitle">Research winning content (M&M method)</div><div class="wdesc">Search your niche on TikTok. Find top 5 most viewed videos from the past 30 days. Note the hook, format and CTA. Use these as your inspiration framework — not a template to copy.</div><div class="wtime">⏱ 10 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1a0f2e;color:#a78bfa">3</div><div><div class="wtitle">Write the script with AI</div><div class="wdesc">Prompt: <em>"Write a 7–11 second TikTok script for this idea: [idea]. Strong hook in first 2 seconds. One sharp insight. End with: 'Get the full [product] — link in bio.'"</em></div><div class="wtime">⏱ 5 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1a0f2e;color:#a78bfa">4</div><div><div class="wtitle">Create video with your Level 1 tools</div><div class="wdesc">AI avatar (Higgsfield), AI UGC, or self-recorded. Add captions in CapCut. Add trending audio. Add on-screen text hook. You already know this workflow from Level 1 — apply it here.</div><div class="wtime">⏱ 20–30 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1a0f2e;color:#a78bfa">5</div><div><div class="wtitle">Post and distribute</div><div class="wdesc">TikTok first. Then Reels, then Shorts. Apply your Level 2 knowledge: best posting times, hashtags, engage with comments in the first 30 minutes. Engagement in that window signals the algorithm.</div><div class="wtime">⏱ 10 min</div></div></div>
+    </div>
+    <div class="tip tip-a"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Your AI content IS your sales team.</strong> Every video is a free ad for your product running 24/7. The more consistently you post inside your 3-hour daily work block, the more the funnel fills. One great video can drive hundreds of subscribers and dozens of sales.</div></div>
+  </div>
+
+  <!-- A P5 -->
+  <div class="phase" id="pa5">
+    <div class="phase-bar"><div class="phase-ico" style="background:#0a1a0a">🚀</div><div class="phase-info"><div class="phase-eyebrow">Phase 5 · Once you have proven sales</div><div class="phase-name">Optimize with data, then scale</div><div class="phase-desc">Now you stop guessing and start using real numbers to grow. Every decision is data-driven from here.</div></div></div>
+
+    <div class="slbl">The metrics that actually matter <span class="new-badge">new</span></div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon">👁️</div>
+        <div class="metric-name">View velocity</div>
+        <div class="metric-desc">How fast views accumulate in the first hour after posting</div>
+        <div class="metric-fix" style="background:rgba(239,68,68,0.1);color:#dc2626">Low? Fix your hook</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-name">Completion rate</div>
+        <div class="metric-desc">% of viewers who watch your video all the way to the end</div>
+        <div class="metric-fix" style="background:rgba(239,68,68,0.1);color:#dc2626">Low? Shorten video</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🔗</div>
+        <div class="metric-name">Bio link clicks</div>
+        <div class="metric-desc">How many viewers actually click through to your storefront</div>
+        <div class="metric-fix" style="background:rgba(239,68,68,0.1);color:#dc2626">Low? Fix your CTA</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📧</div>
+        <div class="metric-name">Email open rate</div>
+        <div class="metric-desc">% of subscribers who open your emails — aim above 25%</div>
+        <div class="metric-fix" style="background:rgba(239,68,68,0.1);color:#dc2626">Low? Fix subject line</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">💰</div>
+        <div class="metric-name">Sales conversion</div>
+        <div class="metric-desc">% of sales page visitors who actually buy — aim for 2–5%</div>
+        <div class="metric-fix" style="background:rgba(239,68,68,0.1);color:#dc2626">Low? Add testimonials</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📈</div>
+        <div class="metric-name">Revenue per sub</div>
+        <div class="metric-desc">Total revenue divided by email list size — tracks list quality</div>
+        <div class="metric-fix" style="background:rgba(72,187,120,0.1);color:#16a34a">Aim: $1+ per sub</div>
+      </div>
+    </div>
+
+    <div class="slbl">The 3x3 content scaling strategy <span class="new-badge">new</span></div>
+    <div class="three-x-three">
+      <div class="tx-card"><div class="tx-label" style="color:#a78bfa">Version 1</div><div class="tx-desc">Original winning video — same script, same format</div></div>
+      <div class="tx-card"><div class="tx-label" style="color:#fbbf24">Version 2</div><div class="tx-desc">Same script, different hook — change only the first 2 seconds</div></div>
+      <div class="tx-card"><div class="tx-label" style="color:#68d391">Version 3</div><div class="tx-desc">Same concept, different format — e.g. text-on-screen instead of avatar</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.65;margin-bottom:14px">When a video performs well — strong view velocity, high completion rate, bio link clicks — do not just repost it. Post 3 variations with slight differences in hook or format. You are finding the most viral version of your best concept. The winner gets scaled further with paid reach.</div>
+
+    <div class="slbl">Income milestone roadmap</div>
+    <div class="ladder">
+      <div class="rung"><div class="rung-price" style="color:#60a5fa">$0 → $500</div><div class="rung-info"><div class="rung-name">1 product · organic content daily · funnel live</div><div class="rung-desc">Goal: 10 paying customers. Validate that everything works end-to-end.</div></div><div class="rung-goal" style="background:rgba(96,165,250,0.1);color:#3b82f6">Validate</div></div>
+      <div class="rung"><div class="rung-price" style="color:#a78bfa">$500 → $2K</div><div class="rung-info"><div class="rung-name">2–3 products · testimonials in · prices raised</div><div class="rung-desc">Stack a product value ladder. Apply 3x3 strategy on best content.</div></div><div class="rung-goal" style="background:rgba(139,92,246,0.1);color:#7c3aed">Stack</div></div>
+      <div class="rung"><div class="rung-price" style="color:#fbbf24">$2K → $5K</div><div class="rung-info"><div class="rung-name">Launch affiliate program · higher-ticket offer</div><div class="rung-desc">Let other creators promote your products for 30–50% commission. Free distribution.</div></div><div class="rung-goal" style="background:rgba(251,191,36,0.1);color:#d97706">Leverage</div></div>
+      <div class="rung"><div class="rung-price" style="color:#4ade80">$5K → $20K</div><div class="rung-info"><div class="rung-name">Membership + TikTok Spark Ads + full automation</div><div class="rung-desc">Recurring income. Boost proven organic videos with paid budget.</div></div><div class="rung-goal" style="background:rgba(74,222,128,0.1);color:#16a34a">Scale</div></div>
+    </div>
+
+    <div class="slbl">Daily operating checklist</div>
+    <div class="checklist">
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Complete your 3-hour deep work block — content creation, funnel work, email writing</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Post 1–2 AI videos using M&M method and your Level 1 workflow</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Check view velocity and completion rates — double down on what is working</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Check bio link clicks and sales dashboard — which video drove revenue today</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Engage with comments for 15 min — signals the algorithm and builds community</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Apply 3x3 to any video that outperformed — create 3 variations this week</div>
+      <div class="ci"><div class="ci-dot" style="background:rgba(124,58,237,0.15);color:#7c3aed">✓</div>Collect every testimonial — add to sales page and raise prices every 10 reviews</div>
+    </div>
+  </div>
+</div>
+
+<!-- PATH B -->
+<div class="content-area" id="content-b">
+  <div class="path-indicator path-indicator-b">
+    <div style="font-size:13px;color:#fbbf24;font-weight:500">Path B — Promote as an affiliate</div>
+    <button class="switch-btn" onclick="selectPath(null)">Switch path</button>
+  </div>
+  <div class="phase-tabs" id="tabs-b">
+    <div class="tab on-b" onclick="showPhase('b','pb1',this)">1 · Find Products</div>
+    <div class="tab" onclick="showPhase('b','pb2',this)">2 · Join Programs</div>
+    <div class="tab" onclick="showPhase('b','pb3',this)">3 · Promote with Content</div>
+    <div class="tab" onclick="showPhase('b','pb4',this)">4 · Build Your Funnel</div>
+    <div class="tab" onclick="showPhase('b','pb5',this)">5 · Scale</div>
+  </div>
+
+  <!-- B P1 -->
+  <div class="phase on" id="pb1">
+    <div class="phase-bar"><div class="phase-ico" style="background:#1c1400">🔍</div><div class="phase-info"><div class="phase-eyebrow">Phase 1 · Choose what to promote</div><div class="phase-name">Find the right products to promote in proven niches</div><div class="phase-desc">Not all affiliate products are equal. You need products your audience wants, with generous commissions and proven conversion rates.</div></div></div>
+
+    <div class="slbl">Start in a proven niche — these markets never stop buying <span class="new-badge">updated</span></div>
+    <div class="niches-grid">
+      <div class="niche-card hot-niche" onclick="selNicheB(this,'wealth')"><div class="niche-ico">💰</div><div class="niche-name">Wealth & Income</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card hot-niche" onclick="selNicheB(this,'health')"><div class="niche-ico">💪</div><div class="niche-name">Health & Fitness</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card hot-niche" onclick="selNicheB(this,'relationships')"><div class="niche-ico">❤️</div><div class="niche-name">Relationships</div><div class="niche-tag" style="background:rgba(251,191,36,0.12);color:#d97706">Big Three</div></div>
+      <div class="niche-card" onclick="selNicheB(this,'ai')"><div class="niche-ico">🤖</div><div class="niche-name">AI & Productivity</div><div class="niche-tag" style="background:rgba(139,92,246,0.12);color:#7c3aed">Hot 2026</div></div>
+      <div class="niche-card" onclick="selNicheB(this,'personal')"><div class="niche-ico">🧠</div><div class="niche-name">Personal Finance</div><div class="niche-tag" style="background:rgba(139,92,246,0.12);color:#7c3aed">Hot 2026</div></div>
+      <div class="niche-card" onclick="selNicheB(this,'selfdev')"><div class="niche-ico">🌱</div><div class="niche-name">Self-Development</div><div class="niche-tag" style="background:rgba(72,187,120,0.12);color:#276749">Evergreen</div></div>
+    </div>
+    <div class="niche-detail" id="niche-detail-b"></div>
+
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">1</div><div class="acc-title">What makes a good affiliate product</div><div class="acc-tag" style="background:rgba(251,191,36,0.1);color:#d97706">Start here</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>Commission rate:</strong> Look for 30–50%+ commission. On a $97 product at 40%, you earn $38.80 per sale. On a $497 product at 40%, you earn $198.80 per sale. Recurring commissions (software, memberships) are the best — one referral pays you every month indefinitely.</p><p><strong>Product quality:</strong> Only promote products you believe in or have tested. Your audience trusts you. Promote something bad and you lose that trust permanently — it is the most expensive mistake you can make in this business.</p><p><strong>Proven conversion:</strong> Ask the creator for their sales page conversion rate. A good page converts at 2–5%. Anything below 1% means the offer itself has problems you cannot fix with better content.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">2</div><div class="acc-title">Match products to your niche content</div><div class="acc-tag" style="background:rgba(239,68,68,0.1);color:#f87171">Critical</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>The product you promote must match the content you create. If you make content about AI and making money online, promote digital product courses, AI tools or marketing software. If you create fitness content, promote workout programs or nutrition guides.</p><p><strong>The rule:</strong> Your viewer follows you because they trust your perspective on a specific topic. The affiliate product must feel like a natural next step — not a random ad inserted into your content.</p></div></div>
+    </div>
+
+    <div class="slbl">Best platforms to find affiliate products</div>
+    <div class="aff-platforms">
+      <div class="aff-card" onclick="selAff(this,'gumroad')"><div class="aff-card-name">Gumroad</div><div class="aff-card-niche">Digital products — all niches</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">Up to 50% commission</span><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Free to join</span></div></div>
+      <div class="aff-card" onclick="selAff(this,'stan')"><div class="aff-card-name">Stan Store</div><div class="aff-card-niche">Creator economy products</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">30–50% commission</span><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">TikTok-native</span></div></div>
+      <div class="aff-card" onclick="selAff(this,'clickbank')"><div class="aff-card-name">ClickBank</div><div class="aff-card-niche">Health, wealth, relationships</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">Up to 75% commission</span><span class="ptag" style="background:rgba(49,130,206,0.1);color:#2c5282">Huge marketplace</span></div></div>
+      <div class="aff-card" onclick="selAff(this,'digistore')"><div class="aff-card-name">Digistore24</div><div class="aff-card-niche">Digital products and courses</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">40–70% commission</span><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Easy approval</span></div></div>
+      <div class="aff-card" onclick="selAff(this,'skool')"><div class="aff-card-name">Skool Affiliate Program</div><div class="aff-card-niche">Communities and courses</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">Up to 50% recurring</span><span class="ptag" style="background:rgba(239,68,68,0.1);color:#f87171">Monthly payments</span></div></div>
+      <div class="aff-card" onclick="selAff(this,'direct')"><div class="aff-card-name">Direct creator deals</div><div class="aff-card-niche">DM creators in your niche</div><div class="aff-card-tags"><span class="ptag" style="background:rgba(251,191,36,0.1);color:#d97706">Negotiate 40–50%</span><span class="ptag" style="background:rgba(72,187,120,0.12);color:#276749">Best terms</span></div></div>
+    </div>
+    <div class="aff-detail-box" id="aff-detail"></div>
+    <div class="tip tip-b"><div class="tip-ico">💡</div><div class="tip-txt"><strong>AI Wealth Group affiliate program:</strong> As a member of our community you already have access to promote AI Wealth Group to others and earn commission. This is the most natural product to start with — you are living proof the system works, and your content already speaks directly to the right audience.</div></div>
+  </div>
+
+  <!-- B P2 -->
+  <div class="phase" id="pb2">
+    <div class="phase-bar"><div class="phase-ico" style="background:#1c1400">📝</div><div class="phase-info"><div class="phase-eyebrow">Phase 2 · Get your affiliate links</div><div class="phase-name">Join affiliate programs and set up tracking</div><div class="phase-desc">Apply, get approved, get your unique link. Every sale through your link earns you commission — automatically.</div></div></div>
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">1</div><div class="acc-title">How to apply and get approved fast</div><div class="acc-tag" style="background:rgba(72,187,120,0.1);color:#276749">Quick start</div><div class="acc-arr">▼</div></div><div class="acc-body"><p><strong>Marketplace programs (Gumroad, ClickBank, Digistore24):</strong> Create a free account, browse products, click "Become Affiliate." Most approve instantly. You get your unique link immediately.</p><p><strong>Direct creator outreach:</strong> DM a creator in your niche: <em>"Hey [name], I love your [product]. I create content for [your audience] and think your product is a perfect fit. Would you be open to an affiliate arrangement? I'm happy to start at whatever commission works for you."</em> Most say yes — free promotion costs them nothing upfront.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">2</div><div class="acc-title">Track your links and know your numbers</div><div class="acc-tag" style="background:rgba(251,191,36,0.1);color:#d97706">Know your data</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>Every affiliate dashboard shows clicks, conversions and commission earned. Check this daily. Create separate links for TikTok bio, Instagram bio and email — this shows exactly which platform and which video is driving sales so you know where to focus your energy.</p><p>Use Bitly or Pretty Links to shorten your affiliate URLs. Long raw affiliate links look spammy and get significantly fewer clicks.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">3</div><div class="acc-title">Legal — always disclose affiliate relationships</div><div class="acc-tag" style="background:rgba(239,68,68,0.1);color:#f87171">Required</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>In most countries and on all major platforms, you are legally required to disclose when you earn commission from a recommendation. Add to your content: "This contains affiliate links — I may earn a commission at no extra cost to you." TikTok, Instagram and YouTube all have built-in disclosure toggles. Use them every time.</p></div></div>
+    </div>
+  </div>
+
+  <!-- B P3 -->
+  <div class="phase" id="pb3">
+    <div class="phase-bar"><div class="phase-ico" style="background:#0d1f33">📱</div><div class="phase-info"><div class="phase-eyebrow">Phase 3 · Where your Level 1 and 2 skills pay off</div><div class="phase-name">Promote with AI content — same skills, different offer</div><div class="phase-desc">Identical to what you learned in Levels 1 and 2. The only difference is the CTA points to an affiliate product instead of your own. You already know how to do this.</div></div></div>
+
+    <div class="slbl">The 7–11 second rule applies here too <span class="new-badge">new</span></div>
+    <div class="acc" onclick="toggleAcc(this,'b')" style="margin-bottom:14px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden">
+      <div class="acc-head"><div class="acc-num" style="background:#1c1400;color:#fbbf24">★</div><div class="acc-title">Short video strategy for affiliate content</div><div class="acc-tag" style="background:rgba(251,191,36,0.1);color:#d97706">2026 tactic</div><div class="acc-arr">▼</div></div>
+      <div class="acc-body"><p>The same 7–11 second format that works for your own products works for affiliate promotion. In fact it works even better for affiliate products because you are delivering one sharp insight — "Here is the fastest way to [solve problem X]" — and the product is the natural next step.</p><p><strong>New account advantage:</strong> Starting from zero followers is not a disadvantage in 2026. Platforms actively push fresh accounts to encourage new creators. Your content quality and hook strength matters far more than your follower count. This means you can start promoting today and still get significant reach in your first week.</p><p>Use the M&M method: find the top 5 performing affiliate promotion videos in your niche, analyze their hook and format, then create your version with your angle using your AI tools.</p></div>
+    </div>
+
+    <div class="slbl">4 content pillars for affiliate promotion</div>
+    <div class="content-pillars">
+      <div class="cpillar"><div class="cpillar-label" style="color:#fbbf24">Pillar 1 — Review</div><div class="cpillar-title">Honest product reviews</div><div class="cpillar-desc">Show what's inside, what you liked, who it's for. Honesty builds trust and trust converts.</div><div class="cpillar-eg">"I bought this $97 course — here's what's actually inside"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#68d391">Pillar 2 — Results</div><div class="cpillar-title">Show the outcome of using it</div><div class="cpillar-desc">What happened after using the product? Results are the most persuasive content that exists.</div><div class="cpillar-eg">"I used this AI tool for 30 days — here's what happened"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#a78bfa">Pillar 3 — Education</div><div class="cpillar-title">Teach using the product as the tool</div><div class="cpillar-desc">Create tutorial content that naturally features the product. Value first, CTA second.</div><div class="cpillar-eg">"How I create AI content in 20 min using [tool]"</div></div>
+      <div class="cpillar"><div class="cpillar-label" style="color:#f87171">Pillar 4 — Compare</div><div class="cpillar-title">Compare versus alternatives</div><div class="cpillar-desc">Show why this product beats free alternatives. Drives confident buying decisions.</div><div class="cpillar-eg">"Free vs paid: is [product] actually worth it?"</div></div>
+    </div>
+
+    <div class="slbl">Daily AI content workflow for affiliate promotion</div>
+    <div class="wsteps">
+      <div class="wstep"><div class="wnum" style="background:#1c1400;color:#fbbf24">1</div><div><div class="wtitle">Research the product and find angles</div><div class="wdesc">Use ChatGPT: <em>"Give me 20 angles for creating 7–11 second TikTok videos promoting [product] to [audience]. Focus on benefits, objections, curiosity and urgency hooks."</em></div><div class="wtime">⏱ 30 min (one time per product)</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1c1400;color:#fbbf24">2</div><div><div class="wtitle">Apply the M&M method</div><div class="wdesc">Find top performing affiliate promotion videos in your niche. Study hooks and format. Use ChatGPT to rewrite in your voice: <em>"Rewrite this hook for [niche] audience in my voice — keep the emotional trigger, make it original."</em></div><div class="wtime">⏱ 10 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1c1400;color:#fbbf24">3</div><div><div class="wtitle">Produce with your Level 1 tools</div><div class="wdesc">AI avatar, AI UGC, or self-recorded. CapCut for editing, captions, trending audio. You already have this workflow — apply it here exactly as you learned in Level 1.</div><div class="wtime">⏱ 20–30 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1c1400;color:#fbbf24">4</div><div><div class="wtitle">CTA to your bio link — never raw affiliate link</div><div class="wdesc">Always drive to your bio link, not directly to the affiliate URL. Bio → your Linktree or Beacons page → affiliate product. Raw affiliate links in captions look spammy and get flagged by platforms.</div><div class="wtime">⏱ 2 min</div></div></div>
+      <div class="wstep"><div class="wnum" style="background:#1c1400;color:#fbbf24">5</div><div><div class="wtitle">Track, apply 3x3, scale what works</div><div class="wdesc">Check affiliate dashboard daily. Which video drove sales? Apply the 3x3 strategy — create 3 variations of that winning video with different hooks or formats. Kill content that shows no conversion after 7 days.</div><div class="wtime">⏱ 10 min daily</div></div></div>
+    </div>
+    <div class="tip tip-b"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Complete your 3-hour deep work block daily.</strong> Same principle applies in Path B — dedicate a focused, distraction-free block to content creation and tracking. Three quality hours of focused work each day is what separates people who build real income from people who stay stuck trying.</div></div>
+  </div>
+
+  <!-- B P4 -->
+  <div class="phase" id="pb4">
+    <div class="phase-bar"><div class="phase-ico" style="background:#1c1400">⚙️</div><div class="phase-info"><div class="phase-eyebrow">Phase 4 · Capture your audience</div><div class="phase-name">Build a simple funnel around your affiliate offer</div><div class="phase-desc">You don't need a product to build a funnel. A lead magnet plus email list turns your affiliate promotions into a compounding asset you own.</div></div></div>
+    <div class="funnel-wrap">
+      <div class="funnel-title">Affiliate funnel — click each stage</div>
+      <div class="fstages">
+        <div class="fs" style="background:#1c1400;max-width:520px" onclick="showFD('fb1')"><div class="fs-ico">📱</div><div class="fs-info"><div class="fs-name" style="color:#fbbf24">AI content promoting affiliate product</div><div class="fs-sub" style="color:rgba(251,191,36,0.6)">7–11 sec videos · TikTok / Reels / Shorts</div></div><div class="fs-right" style="color:#fbbf24">Top of funnel</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fb1"><strong>Use the 7–11 second format here too.</strong> Every video delivers one micro-insight related to the product topic. End with: "Get [freebie related to the topic] — link in bio." You are warming up the audience on the subject before asking them to buy. Content → curiosity → click.</div>
+        <div class="fs" style="background:#1a0f2e;max-width:460px" onclick="showFD('fb2')"><div class="fs-ico">🎁</div><div class="fs-info"><div class="fs-name" style="color:#a78bfa">Your own free lead magnet</div><div class="fs-sub" style="color:rgba(167,139,250,0.6)">Build YOUR list — this is your real asset</div></div><div class="fs-right" style="color:#a78bfa">40–60% optin</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fb2"><strong>The most important part of Path B.</strong> Even though you're promoting someone else's product, capture emails to YOUR list first. Create a free lead magnet related to the niche — use ConvertKit free plan. Your list is your asset. If you switch affiliate products tomorrow, you still have the audience. Never skip this step.</div>
+        <div class="fs" style="background:#1c1400;max-width:400px" onclick="showFD('fb3')"><div class="fs-ico">📧</div><div class="fs-info"><div class="fs-name" style="color:#fbbf24">Email sequence → affiliate offer</div><div class="fs-sub" style="color:rgba(251,191,36,0.6)">3–5 email automated nurture series</div></div><div class="fs-right" style="color:#fbbf24">~30% open</div></div>
+        <div class="farr">↓</div>
+        <div class="fdetail-box" id="fb3"><strong>Write a 3–5 email sequence with ChatGPT.</strong> Email 1: Welcome plus freebie delivery. Email 2: Teach about the core problem your audience has. Email 3: Introduce the affiliate product as the solution. Email 4: Deeper review — what's inside, who it's for. Email 5: Final CTA with your affiliate link. Set it up in ConvertKit once. It runs automatically forever.</div>
+        <div class="fs" style="background:#0a1a0a;max-width:320px" onclick="showFD('fb4')"><div class="fs-ico">💰</div><div class="fs-info"><div class="fs-name" style="color:#4ade80">Affiliate product sale</div><div class="fs-sub" style="color:rgba(74,222,128,0.6)">30–50% commission — automated</div></div><div class="fs-right" style="color:#4ade80">Commission</div></div>
+        <div class="fdetail-box" id="fb4" style="margin-top:8px"><strong>Every sale through your link earns you commission automatically.</strong> The product creator handles delivery, support and refunds. You send traffic and collect your percentage. On a $197 product at 40% commission = $78.80 per sale. 10 sales per month = $788 per month from one product, one funnel, running on autopilot.</div>
+      </div>
+    </div>
+    <div class="tip tip-b"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Build YOUR list, not theirs.</strong> The biggest mistake in Path B is sending traffic directly to the product's sales page without capturing emails first. Always capture the lead first, then send to the affiliate offer. Your email list is the only asset you truly own in Path B.</div></div>
+  </div>
+
+  <!-- B P5 -->
+  <div class="phase" id="pb5">
+    <div class="phase-bar"><div class="phase-ico" style="background:#0a1a0a">🚀</div><div class="phase-info"><div class="phase-eyebrow">Phase 5 · Grow and transition</div><div class="phase-name">Scale Path B and move toward Path A</div><div class="phase-desc">Once affiliate income is flowing, scale the system and start building your own product simultaneously using what you have learned.</div></div></div>
+
+    <div class="slbl">Apply the 3x3 strategy to affiliate content <span class="new-badge">new</span></div>
+    <div class="three-x-three">
+      <div class="tx-card"><div class="tx-label" style="color:#fbbf24">Version 1</div><div class="tx-desc">Original winning video — same script, same format</div></div>
+      <div class="tx-card"><div class="tx-label" style="color:#a78bfa">Version 2</div><div class="tx-desc">Same script, different hook — change only the first 2 seconds</div></div>
+      <div class="tx-card"><div class="tx-label" style="color:#68d391">Version 3</div><div class="tx-desc">Same concept, different format — text-on-screen vs avatar vs self-recorded</div></div>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.65;margin-bottom:14px">When an affiliate promotion video performs strongly — high view velocity, strong completion rate, bio link clicks — apply the 3x3 strategy immediately. Three variations of your best-converting angle. The winner gets scaled further.</div>
+
+    <div class="accordion">
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#0a1a0a;color:#4ade80">1</div><div class="acc-title">Promote multiple products and diversify</div><div class="acc-tag" style="background:rgba(74,222,120,0.1);color:#16a34a">More income streams</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>Once your first affiliate product converts consistently, add 2–3 more in the same niche. Stack products at different price points — a $17 impulse buy, a $97 core offer, a $47/month subscription. Different products convert at different stages of the buyer journey.</p><p>Keep all products in the same niche. Promoting unrelated products to the same audience kills trust and tanks conversion rates.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#0a1a0a;color:#4ade80">2</div><div class="acc-title">Negotiate better commission rates</div><div class="acc-tag" style="background:rgba(251,191,36,0.1);color:#d97706">More money, same work</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>Once you have generated 10–20 sales for a creator, DM them: <em>"Hey, I have sent you X sales this month. Would you be open to increasing my commission to 50%? I am planning to scale my promotion."</em> Creators almost always say yes to top affiliates. You go from 30% to 50% without doing any extra work.</p></div></div>
+      <div class="acc" onclick="toggleAcc(this,'b')"><div class="acc-head"><div class="acc-num" style="background:#0a1a0a;color:#4ade80">3</div><div class="acc-title">Transition to Path A using everything you learned</div><div class="acc-tag" style="background:rgba(139,92,246,0.12);color:#7c3aed">The upgrade move</div><div class="acc-arr">▼</div></div><div class="acc-body"><p>By month 2–3 of running Path B you have: a proven niche, a growing email list, content you know converts, and cash flow to invest. More importantly you know exactly what your audience buys, what questions they ask, what objections they have, and what price points work.</p><p><strong>Now build Path A using all of that data.</strong> Your own product — better than what you have been promoting — sold to the same audience you already built. Keep 100% of every sale. This is the full journey from zero to a real digital product business.</p></div></div>
+    </div>
+
+    <div class="slbl">Path B income milestones</div>
+    <div class="ladder">
+      <div class="rung"><div class="rung-price" style="color:#fbbf24">$0 → $500</div><div class="rung-info"><div class="rung-name">1 affiliate product · 3-hour daily block · M&M content</div><div class="rung-desc">First 10–20 commissions. Validate your content converts to sales.</div></div><div class="rung-goal" style="background:rgba(251,191,36,0.1);color:#d97706">Validate</div></div>
+      <div class="rung"><div class="rung-price" style="color:#a78bfa">$500 → $2K</div><div class="rung-info"><div class="rung-name">2–3 products · email list growing · 3x3 on best videos</div><div class="rung-desc">Stack products. Email funnel running automatically. Apply scaling tactics.</div></div><div class="rung-goal" style="background:rgba(139,92,246,0.1);color:#7c3aed">Stack</div></div>
+      <div class="rung"><div class="rung-price" style="color:#4ade80">$2K → $5K+</div><div class="rung-info"><div class="rung-name">Start building your own product (Path A)</div><div class="rung-desc">Use affiliate cash flow, audience data and email list to launch your own offer.</div></div><div class="rung-goal" style="background:rgba(74,222,128,0.1);color:#16a34a">Upgrade</div></div>
+    </div>
+    <div class="tip tip-b"><div class="tip-ico">💡</div><div class="tip-txt"><strong>Path B is the bridge, Path A is the destination.</strong> Path B teaches you what your audience buys, trains your content and distribution skills on real offers, and generates income while you build. But the real wealth is in owning the product. Use Path B to get there faster and smarter.</div></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const nicheInfo = {
+  wealth:"<strong>💰 Wealth and Income:</strong> The largest and most competitive niche — but also the highest-paying. Products that sell: make money online guides, AI income blueprints, freelancing systems, investing for beginners, passive income playbooks. Your content angle: show the journey, show the results, teach the process. Sub-niche example: 'AI side hustles for 9-to-5 employees who want out.'",
+  health:"<strong>💪 Health and Fitness:</strong> People spend more on health than almost any other category. Products that sell: workout programs, meal plans, weight loss guides, supplement protocols, mental health journals, habit tracking systems. Sub-niche example: 'Sustainable fat loss for busy parents over 35.'",
+  relationships:"<strong>❤️ Relationships:</strong> Dating, marriage, family, communication, confidence. Products that sell: dating guides, relationship repair programs, communication templates, self-confidence courses, attachment style workbooks. Sub-niche example: 'Dating confidence for introverted men in their 30s.'",
+  ai:"<strong>🤖 AI and Productivity:</strong> Exploding in 2026. Products that sell: AI tool guides, prompt libraries, automation workflows, content creation systems, AI business blueprints. This is your home niche as an AI Wealth Group student — you are living proof the model works.",
+  personal:"<strong>🧠 Personal Finance:</strong> Budgeting, debt elimination, investing, financial independence. Products that sell: budget templates, debt payoff trackers, beginner investing guides, savings challenge workbooks. Sub-niche example: 'Debt-free in 24 months for millennials earning under $60K.'",
+  creative:"<strong>🎨 Creative Skills:</strong> Design, writing, photography, music production, video editing. Products that sell: skill-building courses, preset packs, template libraries, editing tutorials, freelancing guides for creatives.",
+  business:"<strong>📊 Business and Marketing:</strong> Entrepreneurship, social media growth, sales, copywriting, email marketing. Products that sell: marketing playbooks, sales scripts, content calendars, email templates, business launch guides.",
+  selfdev:"<strong>🌱 Self-Development:</strong> Habits, mindset, discipline, focus, morning routines. Products that sell: habit trackers, journaling systems, productivity planners, mindset guides, 90-day challenge programs. Extremely consistent buyer demand across all demographics.",
+  parenting:"<strong>👨‍👩‍👧 Parenting and Family:</strong> Underserved and high-trust niche. Products that sell: parenting guides, activity bundles for kids, family routine planners, educational workbooks, screen-time management systems. Very low competition relative to demand."
+};
+
+const productInfo = {
+  ebook:"<strong>📘 E-book and PDF Guide — Best first product.</strong> Write with ChatGPT in 2–4 hours. Design in Canva using free templates. Export as PDF. Sell on Gumroad or Stan Store. Aim for 15–30 pages solving ONE specific problem. Start at $17–$37. Add a 3D mockup image for higher perceived value. Add bonus checklist or prompt pack to stack value. Fastest path to your first sale.",
+  template:"<strong>📋 Templates and Swipe Files — Fastest to build.</strong> Canva templates, Notion systems, Google Sheets trackers, AI prompt libraries, email swipe files. Bundle 5–10 together, price at $17–$47. Can be built in a single afternoon. Sell on Gumroad AND Etsy for double distribution — Etsy has massive built-in search traffic for digital templates.",
+  course:"<strong>🎓 Mini Video Course — Highest revenue per sale.</strong> 5–10 short lessons at 10–15 minutes each. Use your Higgsfield AI avatar or Loom screen recording — your Level 1 skills make this faster than any non-AI creator can move. Host free on Teachable or Notion. Price at $97–$297. Bundle with PDF workbook and templates to justify the price point.",
+  prompts:"<strong>⚡ AI Prompt Packs — Trending category in 2026.</strong> Curate 50–200 prompts for one specific use case — content creation, marketing, business operations, fitness coaching, etc. ChatGPT generates all prompts in one session. Package as a Notion doc or clean PDF. Price $9–$37 per pack or bundle 3 packs for $47. High perceived value, very low refund rate.",
+  notion:"<strong>🗂️ Notion Templates — Zero delivery friction.</strong> Build in Notion, share the link — buyer gets their own copy instantly. Life planners, business dashboards, content calendars, CRM systems, habit trackers. Also list on Etsy for built-in search traffic at zero platform fees for digital items. One of the easiest products to create and one of the fastest to deliver.",
+  membership:"<strong>🔐 Membership and Community — Recurring monthly income.</strong> Launch on Skool ($99/mo platform) or Discord (free). Charge $27–$97 per month for weekly Q&A calls, new resources monthly, community access, accountability. Do not launch this first. Build it once you have an audience and at least one proven product with 20+ happy customers."
+};
+
+const affInfo = {
+  gumroad:"<strong>Gumroad:</strong> Free to join as an affiliate. Browse any product page — most have an Affiliate tab. Commissions set by the creator, typically 20–50%. Instant approval on most products. Dashboard shows clicks, sales and earnings in real time. Best for finding niche digital products across any category.",
+  stan:"<strong>Stan Store:</strong> Built specifically for TikTok and Instagram creators. Many top creators in the make money online and AI space run their stores here. Find creators in your niche, visit their Stan Store, look for the affiliate option. High-quality products with proven social media conversion rates.",
+  clickbank:"<strong>ClickBank:</strong> One of the largest affiliate marketplaces globally. Huge catalog across health, wealth, relationships and software. Commissions up to 75%. Filter by Gravity score — higher gravity means more affiliates are successfully selling it, which signals a proven converter. Best for high-commission products in mass-market niches.",
+  digistore:"<strong>Digistore24:</strong> Strong in European markets but fully global. Very easy approval process. Commissions of 40–70% are common. Good alternative if ClickBank feels overwhelming as a beginner. Products in business, health and self-improvement. Reliable payment processing and transparent reporting.",
+  skool:"<strong>Skool Affiliate Program:</strong> Promote Skool communities and earn recurring commission every month for as long as your referral stays subscribed. Community owners can set commission rates from 10% up to 50% recurring. Even a small number of active referrals can generate meaningful passive monthly income. <em>For the full step-by-step Skool affiliate strategy, see the dedicated Skool Affiliate module in Level 3.</em>",
+  direct:"<strong>Direct Creator Deals:</strong> The best commissions always come from going direct. Find creators in your niche with 10K–100K followers selling their own products. DM them after engaging with their content first. Most will agree to 40–50% commission — they get free promotion, you get great terms. Build the relationship first, pitch second."
+};
+
+function selectPath(path) {
+  document.querySelectorAll('.path-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('content-a').classList.remove('visible');
+  document.getElementById('content-b').classList.remove('visible');
+  if(path==='a'){document.querySelector('.path-a').classList.add('selected');document.getElementById('content-a').classList.add('visible');}
+  else if(path==='b'){document.querySelector('.path-b').classList.add('selected');document.getElementById('content-b').classList.add('visible');}
+}
+
+function showPhase(path,id,btn){
+  const prefix='p'+path;
+  document.querySelectorAll('#tabs-'+path+' .tab').forEach(t=>t.classList.remove('on-a','on-b'));
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(p=>p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on-'+path);
+  ['pdetail-a','niche-detail-a','niche-detail-b','aff-detail'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.querySelectorAll('.fdetail-box').forEach(f=>f.style.display='none');
+}
+
+function toggleAcc(acc,path){
+  const oc='open-'+path;
+  const was=acc.classList.contains(oc);
+  const parent=acc.closest('.accordion');
+  if(parent)parent.querySelectorAll('.acc').forEach(a=>a.classList.remove('open-a','open-b'));
+  if(!was)acc.classList.add(oc);
+}
+
+function selProduct(card,key){
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('sel-a'));
+  card.classList.add('sel-a');
+  const d=document.getElementById('pdetail-a');
+  d.style.display='block';d.innerHTML=productInfo[key];
+}
+
+function selNiche(card,key){
+  document.querySelectorAll('#content-a .niche-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  const d=document.getElementById('niche-detail-a');
+  d.style.display='block';d.innerHTML=nicheInfo[key];
+}
+
+function selNicheB(card,key){
+  document.querySelectorAll('#content-b .niche-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  const d=document.getElementById('niche-detail-b');
+  d.style.display='block';d.innerHTML=nicheInfo[key];
+}
+
+function selAff(card,key){
+  document.querySelectorAll('.aff-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  const d=document.getElementById('aff-detail');
+  d.style.display='block';d.innerHTML=affInfo[key];
+}
+
+function showFD(id){
+  const el=document.getElementById(id);
+  const isOpen=el.style.display==='block';
+  document.querySelectorAll('.fdetail-box').forEach(d=>d.style.display='none');
+  if(!isOpen)el.style.display='block';
+}
+</script>
+</body>
+</html>
